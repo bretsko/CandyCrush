@@ -14,11 +14,6 @@ final class AI : GamePlayer {
         super.init(name: "AI")
     }
 
-
-    override func makeMove() {
-        // TODO: 
-    }
-
     func proposeMove() -> CCGameItemPosition2D {
         // TODO: calculate coordinates
         return CCGameItemPosition2D(x: 0, y: 0)

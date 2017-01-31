@@ -35,10 +35,8 @@ class CCGame: Game {
     var player: GamePlayer
     var board: CCGameBoard2D
     var levels: [GameLevel]
-    var state = GameState.initial
-
-    //current logic for level
     var logic: GameLogic
+    var state = GameState.initial
 
     var currentLevel: Int = 1
     var currentScore: Int = 0
@@ -68,9 +66,7 @@ class CCGame: Game {
         while (state != .paused && state != .finished) {
             processUserInput()
             // check number of moves left - if 0 - lose
-            // if win - show win message - next level
-            // if move legal - process, next move
-            // if move illegeal - show message, try again
+            // if win - show win message - next leveln
         }
     }
 
@@ -81,7 +77,7 @@ class CCGame: Game {
 
         print("Make your move: ")
 
-        func getSource() -> [Int] {
+        func getSource() -> CCGameItemPosition2D {
             while(true) {
                 print("\nPlease enter source: ")
 
@@ -90,7 +86,7 @@ class CCGame: Game {
 
                         let pos = CCGameItemPosition2D(x: moveInt1[0], y: moveInt1[1])
                         if logic.isItemMovable(at: pos) {
-                            return moveInt1
+                            return pos
                         } else {
                             print("No movable item at \(pos)")
                         }
@@ -103,7 +99,7 @@ class CCGame: Game {
         }
 
         //TODO return GamePosition
-        func getDestination(with source: [Int]) -> [Int] {
+        func getDestination(with source: CCGameItemPosition2D) -> CCGameItemPosition2D {
             while(true) {
                 print("Please enter destination: ")
 
@@ -113,13 +109,13 @@ class CCGame: Game {
 
                         let pos = CCGameItemPosition2D(x: destination[0], y: destination[1])
                         if logic.isItemMovable(at: pos) {
-                            let pos1 = CCGameItemPosition2D(x: source[0], y: source[1])
+                            let pos1 = CCGameItemPosition2D(x: source.x, y: source.y)
                             let pos2 = CCGameItemPosition2D(x: destination[0], y: destination[1])
-                            let move = CCGameItemMove(oldPosition: pos1, newPosition: pos2)
+                            let move = CCGameItemMove(source: pos1, destination: pos2)
 
                             guard logic.checkMove(move) == true else { continue }
 
-                            return destination
+                            return pos
                         } else {
                             print("No movable item at \(pos)")
                         }
@@ -132,10 +128,10 @@ class CCGame: Game {
             }
         }
 
-        let source: [Int] = getSource()
-        let destination: [Int] = getDestination(with: source)
+        let source = getSource()
+        let destination = getDestination(with: source)
 
-        let move = makeMove(x1: source[0], y1: source[1], x2: destination[0], y2: destination[1])
+        let move = CCGameItemMove(source: source, destination: destination)
         logic.processMove(move)
 
         //check score and moves - go to next level if reached high score
@@ -150,14 +146,6 @@ class CCGame: Game {
                 //TODO: game finish
             }
         }
-    }
-
-    // TODO move from here
-    func makeMove(x1: Int, y1: Int, x2: Int, y2: Int) -> CCGameItemMove {
-        let pos1 = CCGameItemPosition2D(x: x1, y: y1)
-        let pos2 = CCGameItemPosition2D(x: x2, y: y2)
-        let move = CCGameItemMove(oldPosition: pos1, newPosition: pos2)
-        return move
     }
 
     func printGameState() {

@@ -41,13 +41,13 @@ class CCGameLevelLogic: GameLogic {
 
     func checkMove(_ move: GameItemMove) -> Bool {
 
-        guard let item = board.items.filter({ $0.position == move.oldPosition }).first else {
+        guard let item = board.items.filter({ $0.position == move.source }).first else {
             print("Items can only be switched with each other")
             return false
         }
 
-        let xdiff = abs(move.newPosition.x - move.oldPosition.x)
-        let ydiff = abs(move.newPosition.y - move.oldPosition.y)
+        let xdiff = abs(move.destination.x - move.source.x)
+        let ydiff = abs(move.destination.y - move.source.y)
 
         guard (xdiff == 1 && ydiff == 0) || (xdiff == 0 && ydiff == 1) else {
             print("Only neighbouring items can be switched")
@@ -65,7 +65,7 @@ class CCGameLevelLogic: GameLogic {
 
     func processMove(_ move: GameItemMove) -> Bool {
 
-        if moveItem(at: move.oldPosition, to: move.newPosition) {
+        //if moveItem(at: move.oldPosition, to: move.newPosition) {
 
             // update score
             // update counters - movesLeft
@@ -75,10 +75,10 @@ class CCGameLevelLogic: GameLogic {
 
             calculateScore()
             return true
-        }
+       // }
 
-        calculateScore()
-        return false
+       // calculateScore()
+        //return false
     }
 
     func calculateScore() {

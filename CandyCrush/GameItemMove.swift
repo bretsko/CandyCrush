@@ -10,31 +10,31 @@ protocol GameItemMove {
 
     associatedtype GameItemPosition
 
-    var oldPosition: GameItemPosition { get set }
-    var newPosition: GameItemPosition { get set }
+    var source: GameItemPosition { get set }
+    var destination: GameItemPosition { get set }
 }
 
 class CCGameItemMove: GameItemMove, CustomStringConvertible {
 
     typealias GameItemPosition = CCGameItemPosition2D
 
-    var oldPosition: GameItemPosition
-    var newPosition: GameItemPosition
+    var source: GameItemPosition
+    var destination: GameItemPosition
 
     var description: String {
-        return "from: \(oldPosition), to: \(newPosition)"
+        return "from: \(source), to: \(destination)"
     }
 
-    init(oldPosition: GameItemPosition, newPosition: GameItemPosition) {
-        self.oldPosition = oldPosition
-        self.newPosition = newPosition
+    init(source: GameItemPosition, destination: GameItemPosition) {
+        self.source = source
+        self.destination = destination
     }
 
 }
 
 extension CCGameItemMove: Equatable {
      static func == (lhs: CCGameItemMove, rhs: CCGameItemMove) -> Bool {
-        return lhs.oldPosition == rhs.oldPosition && lhs.newPosition == rhs.newPosition
+        return lhs.source == rhs.source && lhs.destination == rhs.destination
     }
 }
 
