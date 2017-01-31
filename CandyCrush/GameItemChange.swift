@@ -6,8 +6,6 @@
 //
 //
 
-import Foundation
-
 enum GameItemChangeType {
     case remove, add, changeType(GameItemType)
 }

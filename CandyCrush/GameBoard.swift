@@ -6,8 +6,6 @@
 //
 //
 
-import Foundation
-
 protocol GameBoard {
     var items: [ CCGameItem ] { get set }
 }

@@ -6,8 +6,6 @@
 //
 //
 
-import Foundation
-
 protocol GameLogic {
 
     associatedtype GameItemMove
@@ -27,14 +25,19 @@ class CCGameLevelLogic: GameLogic {
     // loaded by GameRuleLoader - different levels can have diff rules
     var rules: [GameRule]
 
-    convenience init(board: GameBoard, level: GameLevel) {
-        self.init(board: board, rules: level.rules)
+    var level: GameLevel
+
+    init(board: GameBoard, level: GameLevel) {
+        self.level = level
+        self.board = board
+        self.rules = self.level.rules
+        //self.init(board: board, rules: level.rules)
     }
 
-    required init(board: GameBoard, rules: [GameRule]) {
-        self.rules = rules
-        self.board = board
-    }
+//    required init(board: GameBoard, rules: [GameRule]) {
+//        self.rules = rules
+//        self.board = board
+//    }
 
     func checkMove(_ move: GameItemMove) -> Bool {
 
@@ -60,8 +63,31 @@ class CCGameLevelLogic: GameLogic {
         }
     }
 
-    func makeMove(_ move: GameItemMove) -> Bool {
-        return moveItem(at: move.oldPosition, to: move.newPosition)
+    func processMove(_ move: GameItemMove) -> Bool {
+
+        if moveItem(at: move.oldPosition, to: move.newPosition) {
+
+            // update score
+            // update counters - movesLeft
+
+            //movesLeft-=1
+            //currentScore
+
+            calculateScore()
+            return true
+        }
+
+        calculateScore()
+        return false
+    }
+
+    func calculateScore() {
+        //TODO
+    }
+
+    func nextLevelReached() -> Bool {
+        //TODO check score and other rules
+        return false
     }
 
     func moveItem(at position1: CCGameItemPosition2D, to position2: CCGameItemPosition2D) -> Bool {
@@ -130,6 +156,45 @@ class CCGameLevelLogic: GameLogic {
         return nil
     }
 
+
+    func load(level: GameLevel) {
+        // init counters - level, move
+
+        self.level = level
+        
+//        let level = levels[currentLevel]
+//
+//        let rules = level.rules
+//
+//        self.logic = CCGameLevelLogic(board: board, rules: rules)
+
+        //movesLeft
+
+    }
+
+    func goToNextLevel() {
+
+//        currentLevel+=1
+//
+//        let level = levels[currentLevel]
+
+        //loadLevel(level)
+    }
+
+    func acceptMove(_ move: CCGameItemMove, from player: GamePlayer) {
+
+        // if last move - save score per player, show message, load next level
+
+        // if last level completed - save score per player, show scoreboard,
+        
+        // rules: [GameRule]
+    }
+    
+    
+    func makeMove(_ move: CCGameItemMove) {
+        
+    }
+    
 
 }
 

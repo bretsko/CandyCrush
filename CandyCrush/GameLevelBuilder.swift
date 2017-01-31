@@ -6,8 +6,6 @@
 //
 //
 
-import Foundation
-
 class GameLevelBuilder {
 
     public func buildLevel1() -> CCGameLevel {

@@ -6,10 +6,9 @@
 //
 //
 
-import Foundation
 
 enum GameState {
-    case initial, started, finished
+    case initial, started, paused, finished
 }
 
 //current game played by a user
@@ -41,7 +40,8 @@ class CCGame: Game {
     //current logic for level
     var logic: GameLogic
 
-    var currentLevel: Int = 0
+    var currentLevel: Int = 1
+    var currentScore: Int = 0
     var movesLeft: Int
 
     init?(player: GamePlayer, board: CCGameBoard2D, levels: [GameLevel]) {
@@ -58,16 +58,30 @@ class CCGame: Game {
         self.logic = CCGameLevelLogic(board:board, level: firstLevel)
     }
 
-    //TODO move to a separate class - cli
     func start() {
+        showWelcomeMessage()
+        state = .started
+        loop()
+    }
 
-        print("Starting game with \(board)")
+    func loop() {
+        while (state != .paused && state != .finished) {
+            processUserInput()
+            // check number of moves left - if 0 - lose
+            // if win - show win message - next level
+            // if move legal - process, next move
+            // if move illegeal - show message, try again
+        }
+    }
+
+    //TODO move to a separate class - cli
+    func processUserInput() {
+
+        printGameState()
 
         print("Make your move: ")
 
-        while(true){
-
-            var source: [Int]?
+        func getSource() -> [Int] {
             while(true) {
                 print("\nPlease enter source: ")
 
@@ -76,8 +90,7 @@ class CCGame: Game {
 
                         let pos = CCGameItemPosition2D(x: moveInt1[0], y: moveInt1[1])
                         if logic.isItemMovable(at: pos) {
-                            source = moveInt1
-                            break
+                            return moveInt1
                         } else {
                             print("No movable item at \(pos)")
                         }
@@ -87,21 +100,26 @@ class CCGame: Game {
                     }
                 }
             }
+        }
 
-            var destination: [Int]?
+        //TODO return GamePosition
+        func getDestination(with source: [Int]) -> [Int] {
             while(true) {
                 print("Please enter destination: ")
 
-                if let moveString2 = readLine() {
-                    if let moveInt2 = stringToNumbers(moveString2, numberOfElements: 2), moveInt2[0]  >= 0 && moveInt2[0] < self.board.maxX,
-                        moveInt2[1]  >= 0 && moveInt2[1] < self.board.maxY {
+                if let destString = readLine() {
+                    if let destination = stringToNumbers(destString, numberOfElements: 2), destination[0]  >= 0 && destination[0] < self.board.maxX,
+                        destination[1]  >= 0 && destination[1] < self.board.maxY {
 
-                        let pos = CCGameItemPosition2D(x: moveInt2[0], y: moveInt2[1])
+                        let pos = CCGameItemPosition2D(x: destination[0], y: destination[1])
                         if logic.isItemMovable(at: pos) {
-                            destination = moveInt2
-                            if processMove(x1: source![0], y1: source![1], x2: destination![0], y2: destination![1]) == true {
-                                break
-                            }
+                            let pos1 = CCGameItemPosition2D(x: source[0], y: source[1])
+                            let pos2 = CCGameItemPosition2D(x: destination[0], y: destination[1])
+                            let move = CCGameItemMove(oldPosition: pos1, newPosition: pos2)
+
+                            guard logic.checkMove(move) == true else { continue }
+
+                            return destination
                         } else {
                             print("No movable item at \(pos)")
                         }
@@ -113,79 +131,51 @@ class CCGame: Game {
                 }
             }
         }
-    }
 
-    func processMove(x1: Int, y1: Int, x2: Int, y2: Int) -> Bool {
-        let pos1 = CCGameItemPosition2D(x: x1, y: y1)
-        let pos2 = CCGameItemPosition2D(x: x2, y: y2)
-        let move = CCGameItemMove(oldPosition: pos1, newPosition: pos2)
+        let source: [Int] = getSource()
+        let destination: [Int] = getDestination(with: source)
 
-        guard logic.checkMove(move) == true else { return false }
+        let move = makeMove(x1: source[0], y1: source[1], x2: destination[0], y2: destination[1])
+        logic.processMove(move)
 
-        if logic.makeMove(move) == true {
-            print(board)
-            return true
-        } else {
-            print("\nInvalid move!")
-            return false
+        //check score and moves - go to next level if reached high score
+        movesLeft-=1
+
+        if logic.nextLevelReached() || movesLeft == 0 {
+            //TODO: go to next level
+            if currentLevel < levels.count {
+                currentLevel+=1
+                self.logic.load(level: levels[currentLevel])
+            } else {
+                //TODO: game finish
+            }
         }
     }
 
-
-    func loadLevel(_ level: GameLevel) {
-        // init counters - level, move
-
-        let level = levels[currentLevel]
-
-        let rules = level.rules
-
-        self.logic =  CCGameLevelLogic(board:board, rules: rules)
-
-        //movesLeft
-
+    // TODO move from here
+    func makeMove(x1: Int, y1: Int, x2: Int, y2: Int) -> CCGameItemMove {
+        let pos1 = CCGameItemPosition2D(x: x1, y: y1)
+        let pos2 = CCGameItemPosition2D(x: x2, y: y2)
+        let move = CCGameItemMove(oldPosition: pos1, newPosition: pos2)
+        return move
     }
 
-
-    func goToNextLevel() {
-
-        currentLevel+=1
-
-        let level = levels[currentLevel]
-
-        //loadLevel(level)
+    func printGameState() {
+        print("\n Level: \(currentLevel)\n Moves: \(movesLeft)\n Score: \(currentScore)\n" )
+        print(board)
     }
 
-    func acceptMove(_ move: CCGameItemMove, from player: GamePlayer) {
-
-        //if logic.validate
-
-        movesLeft-=1
-
-        // if first level - init counters, moves, gameBoard, GameLevellogic
-
-        // if last move - save score per player, show message, load next level
-
-        // if last level completed - save score per player, show scoreboard,
-
-        // rules: [GameRule]
+    func showWelcomeMessage() {
+        print("Starting game")
     }
 
-
-    func makeMove(_ move: CCGameItemMove) {
-        
-    }
-    
-    
     func quit() {
         print("Come back soon!")
     }
-    
-    
+
     func pause() {
-        
+        print("Pause")
     }
-
-
 
 }
 

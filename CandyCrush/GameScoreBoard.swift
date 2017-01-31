@@ -6,8 +6,6 @@
 //
 //
 
-import Foundation
-
 protocol GameScoreBoard {
     var scores: [ GamePlayer : Int ] { get set }
 }

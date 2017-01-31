@@ -6,9 +6,8 @@
 //
 //
 
-import Foundation
 
- protocol GameLevel {
+protocol GameLevel {
 
     var moves: Int { get set }
 

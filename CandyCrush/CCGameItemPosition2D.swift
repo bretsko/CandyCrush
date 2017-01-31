@@ -6,9 +6,6 @@
 //
 //
 
-import Foundation
-
-
 struct CCGameItemPosition2D: Hashable, CustomStringConvertible {
 
     var x: Int

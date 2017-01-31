@@ -6,7 +6,6 @@
 //
 //
 
-import Foundation
 
 final class Application {
 
@@ -14,6 +13,8 @@ final class Application {
 
     let gameLevelBuilder: GameLevelBuilder
     let gameBoardFactory: GameBoardFactory
+    let minBoardSize = 2
+    let maxBoardSize = 10
 
     init(name: String) {
         self.name = name
@@ -23,18 +24,18 @@ final class Application {
 
 
     func run() {
-        print("Welcome to Candy Crush!")
+        print("Welcome to \(name)!")
 
         let boardSize = askBoardSize()
 
-        //fill 50 %
-        guard let board = gameBoardFactory.makeRandomBoard2D(length: boardSize, percentsFilled: 50) else { return }
+        // fill randomly 50 % of board
+        guard let board = gameBoardFactory.makeRandomSquareBoard2D(length: boardSize, percentsFilled: 50) else { return }
 
         let level1 = gameLevelBuilder.buildLevel1()
 
         let levels = [level1]
 
-        //TODO ask name
+        // TODO: ask name
         let player = GamePlayer(name: "Player1")
         guard let game = CCGame(player: player, board: board, levels: levels) else { return }
 
@@ -45,10 +46,10 @@ final class Application {
         while(true){
             print("Please enter board size: ")
             if let boardSizeString = readLine() {
-                if let boardSizeInt = stringToNumbers(boardSizeString, numberOfElements: 1), boardSizeInt[0] > 1 && boardSizeInt[0] < 11 {
+                if let boardSizeInt = stringToNumbers(boardSizeString, numberOfElements: 1), boardSizeInt[0] >= minBoardSize && boardSizeInt[0] <= maxBoardSize {
                     return boardSizeInt.first!
                 } else {
-                    print("Invalid board size, please enter number between 2 and 10")
+                    print("Invalid board size, please enter number between \(minBoardSize) and \(maxBoardSize)")
                 }
             }
         }

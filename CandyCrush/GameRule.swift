@@ -6,8 +6,6 @@
 //
 //
 
-import Foundation
-
 
 protocol GameRule {
     var condition: GameCondition  { get set }

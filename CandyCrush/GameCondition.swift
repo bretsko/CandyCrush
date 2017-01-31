@@ -6,9 +6,8 @@
 //
 //
 
-import Foundation
 
- protocol GameCondition {
+protocol GameCondition {
     //public var board: GameBoard
 }
 

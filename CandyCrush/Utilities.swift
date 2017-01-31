@@ -16,3 +16,7 @@ func stringToNumbers(_ string: String, numberOfElements: Int) -> [Int]? {
     return numbers
 }
 
+func randomInt(max: Int) -> Int {
+    return Int(arc4random_uniform(UInt32(max)))
+}
+

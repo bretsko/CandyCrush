@@ -6,8 +6,6 @@
 //
 //
 
-import Foundation
-
 protocol GameItemMove {
 
     associatedtype GameItemPosition

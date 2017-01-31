@@ -8,5 +8,5 @@
 
 import Foundation
 
-let app = Application(name: "CandyCrush")
+let app = Application(name: "Candy Crush")
 app.run()
