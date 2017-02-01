@@ -9,11 +9,7 @@
 
 class GamePlayer: Hashable  {
 
-    var name: String
-
-    func makeMove() {
-        
-    }
+    let name: String
 
     var hashValue: Int {
         return name.hashValue
@@ -26,6 +22,6 @@ class GamePlayer: Hashable  {
 
 extension GamePlayer: Equatable {
     static func == (lhs: GamePlayer, rhs: GamePlayer) -> Bool {
-        return lhs.name == rhs.name && lhs.name == rhs.name
+        return lhs.name == rhs.name
     }
 }

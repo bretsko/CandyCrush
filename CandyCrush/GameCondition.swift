@@ -6,15 +6,22 @@
 //
 //
 
+//typealias GameConditionBlockType = (CCGameItemMove2D) -> Bool
 
-protocol GameCondition {
-    //public var board: GameBoard
-}
 
-class CCGameCondition: GameCondition {
-    // TODO:
 
-     init() {
-
-    }
-}
+//protocol GameCondition {
+//    var block: GameConditionBlockType { get set }
+//}
+//
+//class CCGameCondition: GameCondition {
+//
+//    var block: GameConditionBlockType
+//
+//    // TODO:
+//    init(block: @escaping GameConditionBlockType) {
+//        self.block = block
+//    }
+//
+//
+//}

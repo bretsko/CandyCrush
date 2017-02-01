@@ -8,14 +8,15 @@
 
 import Foundation
 
-final class AI : GamePlayer {
-
-    init(){
-        super.init(name: "AI")
-    }
-
-    func proposeMove() -> CCGameItemPosition2D {
-        // TODO: calculate coordinates
-        return CCGameItemPosition2D(x: 0, y: 0)
-    }
-}
+// TODO: has board
+// final class AI : GamePlayer {
+//
+//    init(){
+//        super.init(name: "AI")
+//    }
+//
+//    func proposeMove() -> CCGameItemPosition {
+//        // TODO: calculate coordinates
+//        return CCGameItemPosition(x: 0, y: 0)
+//    }
+//}

@@ -6,30 +6,31 @@
 //
 //
 
-protocol GameItemMove {
+protocol GameItemMove: CustomStringConvertible, Hashable {
 
-    associatedtype GameItemPosition
+    associatedtype GIPosition: GameItemPosition
 
-    var source: GameItemPosition { get set }
-    var destination: GameItemPosition { get set }
+    var source: GIPosition { get set }
+    var destination: GIPosition { get set }
 }
 
-class CCGameItemMove: GameItemMove, CustomStringConvertible {
+class CCGameItemMove<GIPosition: GameItemPosition>: GameItemMove {
 
-    typealias GameItemPosition = CCGameItemPosition2D
-
-    var source: GameItemPosition
-    var destination: GameItemPosition
+    var source: GIPosition
+    var destination: GIPosition
 
     var description: String {
         return "from: \(source), to: \(destination)"
     }
 
-    init(source: GameItemPosition, destination: GameItemPosition) {
+    var hashValue: Int {
+        return source.hashValue + destination.hashValue
+    }
+
+    init(source: GIPosition, destination: GIPosition) {
         self.source = source
         self.destination = destination
     }
-
 }
 
 extension CCGameItemMove: Equatable {

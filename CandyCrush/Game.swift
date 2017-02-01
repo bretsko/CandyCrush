@@ -11,49 +11,54 @@ enum GameState {
     case initial, started, paused, finished
 }
 
-//current game played by a user
 protocol Game {
 
-    associatedtype GameLogic
+    associatedtype Logic: GameLogic
+    typealias Board = Logic.GLBoard
 
+    var logic: Logic { get set }
+    var board: Board { get set }
     var state: GameState  { get set }
-
     var player: GamePlayer { get set }
-    var board: CCGameBoard2D { get set }
     var levels: [GameLevel] { get set }
-    var logic: GameLogic { get set }
 
     func start()
     func pause()
     func quit()
 }
 
-class CCGame: Game {
+class Game2D: Game {
 
-    typealias GameLogic = CCGameLevelLogic
+    typealias Logic = GameLogic2D
+    typealias Board = Logic.GLBoard
+    typealias GameItem = Board.GameBoardItem
+    typealias GIType = GameItem.GIType
+    typealias GIPosition = GameItem.GIPosition
+
+    typealias GIMove = CCGameItemMove<GIPosition>
 
     var player: GamePlayer
-    var board: CCGameBoard2D
+    var board: Board
     var levels: [GameLevel]
-    var logic: GameLogic
+    var logic: Logic
     var state = GameState.initial
 
     var currentLevel: Int = 1
     var currentScore: Int = 0
     var movesLeft: Int
 
-    init?(player: GamePlayer, board: CCGameBoard2D, levels: [GameLevel]) {
+    init?(board: Board, player: GamePlayer, levels: [GameLevel]) {
 
         guard levels.count > 0 else { return nil }
 
-        self.player = player
         self.board = board
+        self.player = player
         self.levels = levels
 
         let firstLevel = levels.first!
         movesLeft = firstLevel.moves
 
-        self.logic = CCGameLevelLogic(board:board, level: firstLevel)
+        self.logic = Logic(board: board, level: firstLevel)
     }
 
     func start() {
@@ -77,14 +82,14 @@ class CCGame: Game {
 
         print("Make your move: ")
 
-        func getSource() -> CCGameItemPosition2D {
+        func getSource() -> GIPosition {
             while(true) {
                 print("\nPlease enter source: ")
 
                 if let moveString1 = readLine() {
                     if let moveInt1 = stringToNumbers(moveString1, numberOfElements: 2), moveInt1[0]  >= 0 && moveInt1[0] < self.board.maxX, moveInt1[1]  >= 0 && moveInt1[1] < self.board.maxY {
 
-                        let pos = CCGameItemPosition2D(x: moveInt1[0], y: moveInt1[1])
+                        let pos = GIPosition(x: moveInt1[0], y: moveInt1[1])
                         if logic.isItemMovable(at: pos) {
                             return pos
                         } else {
@@ -99,7 +104,7 @@ class CCGame: Game {
         }
 
         //TODO return GamePosition
-        func getDestination(with source: CCGameItemPosition2D) -> CCGameItemPosition2D {
+        func getDestination(with source: GIPosition) -> GIPosition {
             while(true) {
                 print("Please enter destination: ")
 
@@ -107,11 +112,11 @@ class CCGame: Game {
                     if let destination = stringToNumbers(destString, numberOfElements: 2), destination[0]  >= 0 && destination[0] < self.board.maxX,
                         destination[1]  >= 0 && destination[1] < self.board.maxY {
 
-                        let pos = CCGameItemPosition2D(x: destination[0], y: destination[1])
+                        let pos = GIPosition(x: destination[0], y: destination[1])
                         if logic.isItemMovable(at: pos) {
-                            let pos1 = CCGameItemPosition2D(x: source.x, y: source.y)
-                            let pos2 = CCGameItemPosition2D(x: destination[0], y: destination[1])
-                            let move = CCGameItemMove(source: pos1, destination: pos2)
+                            let pos1 = GIPosition(x: source.x, y: source.y)
+                            let pos2 = GIPosition(x: destination[0], y: destination[1])
+                            let move = GIMove(source: pos1, destination: pos2)
 
                             guard logic.checkMove(move) == true else { continue }
 
@@ -131,7 +136,7 @@ class CCGame: Game {
         let source = getSource()
         let destination = getDestination(with: source)
 
-        let move = CCGameItemMove(source: source, destination: destination)
+        let move = GIMove(source: source, destination: destination)
         logic.processMove(move)
 
         //check score and moves - go to next level if reached high score

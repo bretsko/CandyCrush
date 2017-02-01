@@ -8,26 +8,36 @@
 
 protocol GameLogic {
 
-    associatedtype GameItemMove
-    associatedtype GameBoard
+    associatedtype GLBoard: GameBoard
+    associatedtype GLItemMove: GameItemMove
+
+    typealias GLItem = GLBoard.GameBoardItem
+    typealias GIPosition = GLItem.GIPosition
+    typealias GIType = GLItem.GIType
 
     var rules: [GameRule]  { get set }
-    var board: GameBoard { get set }
+    var board: GLBoard { get set }
+
+    func checkMove(_ move: GLItemMove) -> Bool
+    init(board: GLBoard, level: GameLevel)
 }
 
-class CCGameLevelLogic: GameLogic {
+class GameLogic2D: GameLogic {
 
-    typealias GameItemMove = CCGameItemMove
-    typealias GameBoard = CCGameBoard2D
+    typealias GLBoard = GameBoard2D
+    typealias GLItem = GLBoard.GameBoardItem//CCGameItem<GLItemPosition, GLItemType>
+    typealias GLItemPosition = GLItem.GIPosition//CCGameItemPosition
+    typealias GIType = GLItem.GIType
+    typealias GLItemMove = CCGameItemMove<GLItemPosition>
 
-    var board: GameBoard
+    var board: GLBoard
 
     // loaded by GameRuleLoader - different levels can have diff rules
-    var rules: [GameRule]
+    var rules: [GameRule] //private?
 
-    var level: GameLevel
+    private var level: GameLevel
 
-    init(board: GameBoard, level: GameLevel) {
+    required init(board: GLBoard, level: GameLevel) {
         self.level = level
         self.board = board
         self.rules = self.level.rules
@@ -39,7 +49,15 @@ class CCGameLevelLogic: GameLogic {
 //        self.board = board
 //    }
 
-    func checkMove(_ move: GameItemMove) -> Bool {
+
+    func checkMove(_ move: GLItemMove) -> Bool {
+        for rule in rules {
+            guard checkMove(move, satisfies: rule) else { return false }
+        }
+        return true
+    }
+
+    private func checkMove(_ move: GLItemMove, satisfies rule: GameRule) -> Bool {
 
         guard let item = board.items.filter({ $0.position == move.source }).first else {
             print("Items can only be switched with each other")
@@ -54,18 +72,18 @@ class CCGameLevelLogic: GameLogic {
             return false
         }
 
-        switch item.type {
-            case .Wall:
+        switch item.type.kind {
+            case .wall:
                 print("Wall cannot be moved")
                 return false
-            case .Candy, .Bonus:
+            case .candy:
                 return true
         }
     }
 
-    func processMove(_ move: GameItemMove) -> Bool {
+    func processMove(_ move: GLItemMove) -> Bool {
 
-        //if moveItem(at: move.oldPosition, to: move.newPosition) {
+        if moveItem(at: move.source, to: move.destination) {
 
             // update score
             // update counters - movesLeft
@@ -73,24 +91,52 @@ class CCGameLevelLogic: GameLogic {
             //movesLeft-=1
             //currentScore
 
+        // if last move - save score per player, show message, load next level
+        // if last level completed - save score per player, show scoreboard,
+
             calculateScore()
             return true
-       // }
+       }
 
-       // calculateScore()
-        //return false
+        calculateScore()
+        return false
     }
 
-    func calculateScore() {
-        //TODO
+    func isItemMovable(at position: CCGameItemPosition) -> Bool {
+        guard position.y < board.maxY && position.x < board.maxX else { return false }
+
+        if let item = board.items.filter({ $0.position == position }).first {
+            return item.type.kind != .wall
+        }
+        return false
     }
+
 
     func nextLevelReached() -> Bool {
         //TODO check score and other rules
         return false
     }
 
-    func moveItem(at position1: CCGameItemPosition2D, to position2: CCGameItemPosition2D) -> Bool {
+    func load(level: GameLevel) {
+        // init counters - level, move
+
+        self.level = level
+
+        //        let level = levels[currentLevel]
+        //
+        //        let rules = level.rules
+        //
+        //        self.logic = CCGameLevelLogic(board: board, rules: rules)
+        
+        //movesLeft
+        
+    }
+
+    private func calculateScore() {
+        //TODO
+    }
+
+    private func moveItem(at position1: CCGameItemPosition, to position2: CCGameItemPosition) -> Bool {
 
         guard isItemMovable(at: position1) && isItemMovable(at: position2) else { return false }
 
@@ -102,7 +148,7 @@ class CCGameLevelLogic: GameLogic {
         return true
     }
 
-    func moveItem(_ item: CCGameItem, to newPosition: CCGameItemPosition2D) -> Bool {
+    private func moveItem(_ item: GLItem, to newPosition: CCGameItemPosition) -> Bool {
         guard removeItem(item) else { return false }
 
         item.position = newPosition
@@ -110,7 +156,7 @@ class CCGameLevelLogic: GameLogic {
         return true
     }
 
-    func addItem(_ item: CCGameItem) -> Bool {
+    private func addItem(_ item: GLItem) -> Bool {
         guard canAddItem(at: item.position, with: item.type) else { return false }
 
         let item = CCGameItem(type: item.type, position: item.position)
@@ -118,23 +164,16 @@ class CCGameLevelLogic: GameLogic {
         return true
     }
 
-    func removeItem(_ item: CCGameItem) -> Bool {
+    private func removeItem(_ item: GLItem) -> Bool {
         guard isItemMovable(at: item.position) else { return false }
 
         board.items = board.items.filter({ $0 != item })
         return true
     }
 
-    func isItemMovable(at position: CCGameItemPosition2D) -> Bool {
-        guard position.y < board.maxY && position.x < board.maxX else { return false }
 
-        if let item = board.items.filter({ $0.position == position }).first {
-            return item.type != .Wall
-        }
-        return false
-    }
 
-    func canAddItem(at position: CCGameItemPosition2D, with type: GameItemType) -> Bool {
+    private func canAddItem(at position: CCGameItemPosition, with type: GameItemType) -> Bool {
         guard position.y < board.maxY && position.x < board.maxX else { return false }
         guard board.items.contains(where: { $0.position == position }) == false else {
             print("Failed to add item at position \(position), item already present")
@@ -143,7 +182,7 @@ class CCGameLevelLogic: GameLogic {
         return true
     }
 
-    func replaceItem(item1: CCGameItem, with item2: CCGameItem) -> Bool {
+    private func replaceItem(item1: GLItem, with item2: GLItem) -> Bool {
         if removeItem(item1) == true {
             return addItem(item2)
         }
@@ -151,50 +190,14 @@ class CCGameLevelLogic: GameLogic {
     }
 
 
-    func produceEffect(_ move: GameItemMove) -> CCGameEffect? {
-        // TODO check rules and board
-        return nil
-    }
+//    private func produceEffect(_ move: GLItemMove) -> CCGameEffect? {
+//        // TODO check rules and board
+//        return nil
+//    }
 
 
-    func load(level: GameLevel) {
-        // init counters - level, move
 
-        self.level = level
-        
-//        let level = levels[currentLevel]
-//
-//        let rules = level.rules
-//
-//        self.logic = CCGameLevelLogic(board: board, rules: rules)
 
-        //movesLeft
-
-    }
-
-    func goToNextLevel() {
-
-//        currentLevel+=1
-//
-//        let level = levels[currentLevel]
-
-        //loadLevel(level)
-    }
-
-    func acceptMove(_ move: CCGameItemMove, from player: GamePlayer) {
-
-        // if last move - save score per player, show message, load next level
-
-        // if last level completed - save score per player, show scoreboard,
-        
-        // rules: [GameRule]
-    }
-    
-    
-    func makeMove(_ move: CCGameItemMove) {
-        
-    }
-    
 
 }
 

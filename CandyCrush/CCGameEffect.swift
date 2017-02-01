@@ -10,11 +10,11 @@ import Foundation
 
 //  add  /remove / replace items at indices with type
 
-struct CCGameEffect {
-    
-    var itemChanges: [CCGameItemChange]
-
-}
+//struct CCGameEffect {
+//    
+//    var itemChanges: [CCGameItemChange]
+//
+//}
 
 
 

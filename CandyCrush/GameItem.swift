@@ -6,32 +6,19 @@
 //
 //
 
-enum GameItemType: Int, CustomStringConvertible {
-    case Wall, Candy, Bonus
+protocol GameItem: Hashable, CustomStringConvertible {
 
-    var description: String {
-        switch self {
-            case .Wall: return "Wall".onBlack
-            case .Candy: return "Candy".blue
-            case .Bonus: return "Bonus".red
-        }
-    }
+    associatedtype GIPosition: GameItemPosition
+    associatedtype GIType: GameItemType
+
+    var type: GIType { get set }
+    var position: GIPosition { get set }
 }
 
-protocol GameItem {
+class CCGameItem<GIPosition: GameItemPosition, GIType: GameItemType>: GameItem {
 
-    associatedtype GameItemPosition
-
-    var type: GameItemType { get set }
-    var position: GameItemPosition { get set }
-}
-
-class CCGameItem: Hashable, CustomStringConvertible {
-
-    typealias GameItemPosition = CCGameItemPosition2D
-
-    var type: GameItemType
-    var position: GameItemPosition
+    var type: GIType
+    var position: GIPosition
 
     var hashValue: Int {
         return position.hashValue + position.hashValue
@@ -41,7 +28,7 @@ class CCGameItem: Hashable, CustomStringConvertible {
         return "\(type) at: \(position)"
     }
 
-    init(type: GameItemType, position: GameItemPosition) {
+    init(type: GIType, position: GIPosition) {
         self.type = type
         self.position = position
     }

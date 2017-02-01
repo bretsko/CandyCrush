@@ -20,3 +20,6 @@ func randomInt(max: Int) -> Int {
     return Int(arc4random_uniform(UInt32(max)))
 }
 
+func randomBool() -> Bool {
+    return arc4random_uniform(2) == 0
+}

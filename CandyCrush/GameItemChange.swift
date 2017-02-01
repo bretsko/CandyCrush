@@ -12,16 +12,14 @@ enum GameItemChangeType {
 
 protocol GameItemChange {
 
-    associatedtype GameItemPosition
+    associatedtype GIPosition: GameItemPosition
 
     var change: [ GameItemChangeType ] { get set }
-    var position: GameItemPosition { get set }
+    var position: GIPosition { get set }
 }
 
-struct CCGameItemChange: GameItemChange {
-
-    typealias GameItemPosition = CCGameItemPosition2D
+struct CCGameItemChange<GIPosition: GameItemPosition>: GameItemChange {
 
     var change: [GameItemChangeType]
-    var position: CCGameItemPosition2D
+    var position: GIPosition
 }

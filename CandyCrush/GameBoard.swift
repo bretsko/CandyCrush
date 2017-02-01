@@ -7,15 +7,18 @@
 //
 
 protocol GameBoard {
-    var items: [ CCGameItem ] { get set }
+    associatedtype GameBoardItem: GameItem
+    var items: [ GameBoardItem ] { get set }
 }
 
-class CCGameBoard2D: GameBoard {
+class GameBoard2D: GameBoard {
 
-    var items = [ CCGameItem ]()
+    typealias GameBoardItem = CCGameItem<CCGameItemPosition, CCGameItemType>
 
-    public let maxX: Int
-    public let maxY: Int
+    var items = [ GameBoardItem ]()
+
+    let maxX: Int
+    let maxY: Int
 
     init(maxX: Int, maxY: Int) {
         self.maxX = maxX
@@ -23,15 +26,13 @@ class CCGameBoard2D: GameBoard {
     }
 }
 
-extension CCGameBoard2D: CustomStringConvertible {
+extension GameBoard2D: CustomStringConvertible {
+
     var description: String {
 
         items.sort(by: { $0.position < $1.position })
-
         var result = "Game board:"
-
         let delimiter =  "\n" + String(repeating: "= ", count: maxX * 4) + "\n" // -> "= = = = = "
-
         result += delimiter
 
         for y in 0..<maxY {
@@ -46,7 +47,6 @@ extension CCGameBoard2D: CustomStringConvertible {
         }
 
         result += delimiter
-
         return result
     }
 }

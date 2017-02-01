@@ -11,15 +11,24 @@ final class Application {
 
     var name: String
 
-    let gameLevelBuilder: GameLevelBuilder
-    let gameBoardFactory: GameBoardFactory
+    typealias CCGame = Game2D
+    typealias Logic = Game2D.Logic
+    typealias GIMove = Game2D.GIMove
+
+    typealias GameItem = Game2D.GameItem
+    typealias GIType = GameItem.GIType
+    typealias GIPosition = GameItem.GIPosition
+    typealias Board = Game2D.Board
+
+    //let gameLevelBuilder: CCGameLevelBuilder
+    let gameBoardFactory: GameBoard2DFactory
     let minBoardSize = 2
     let maxBoardSize = 10
 
     init(name: String) {
         self.name = name
-        self.gameLevelBuilder = GameLevelBuilder()
-        self.gameBoardFactory = GameBoardFactory()
+        //self.gameLevelBuilder = GameLevelBuilder()
+        self.gameBoardFactory = GameBoard2DFactory()
     }
 
 
@@ -29,15 +38,15 @@ final class Application {
         let boardSize = askBoardSize()
 
         // fill randomly 50 % of board
-        guard let board = gameBoardFactory.makeRandomSquareBoard2D(length: boardSize, percentsFilled: 50) else { return }
+        guard let board = gameBoardFactory.makeRandomBoard(length: boardSize, percentsFilled: 50) else { return }
 
-        let level1 = gameLevelBuilder.buildLevel1()
+       // let level1 = gameLevelBuilder.buildLevel1()
 
-        let levels = [level1]
+        let levels = [CCGameLevel]()
 
         // TODO: ask name
         let player = GamePlayer(name: "Player1")
-        guard let game = CCGame(player: player, board: board, levels: levels) else { return }
+        guard let game = CCGame(board: board, player: player, levels: levels) else { return }
 
         game.start()
     }
